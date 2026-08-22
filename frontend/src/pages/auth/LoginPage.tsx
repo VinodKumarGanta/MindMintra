@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BrainCircuit, User, Lock, LogIn, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import { api } from '../../services/api';
@@ -7,7 +7,9 @@ import { useAppContext } from '../../context/AppContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setCurrentUser } = useAppContext();
+
 
   const [usernameEmail, setUsernameEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,16 +43,21 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await api.loginCaregiver({ email: cleanUsername, password });
-      setSuccessMessage('Login successful! Redirecting to caretaker dashboard...');
+      setSuccessMessage('Login successful! Redirecting...');
       
       if (res.user) {
         localStorage.setItem('mindmitra_caregiver_token', res.token || 'demo_token');
         localStorage.setItem('mindmitra_caregiver_user', JSON.stringify(res.user));
       }
 
+      // Redirect to ?next= page or default to caregiver dashboard
+      const params = new URLSearchParams(location.search);
+      const nextPage = params.get('next') || '/caregiver';
+
       setTimeout(() => {
-        navigate('/caregiver');
+        navigate(nextPage);
       }, 1000);
+
     } catch (err: any) {
       setErrorMessage(err.message || 'Invalid Username (Email ID) or password. Please verify your credentials.');
     } finally {
