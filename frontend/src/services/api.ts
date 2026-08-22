@@ -129,6 +129,20 @@ export const api = {
 
   // Demo
   seedFullDemo: () => fetchJSON<any>('/demo/seed', { method: 'POST' }),
+
+  // Quantum Research Module (Experimental)
+  getQuantumInfo: async () => {
+    const res = await fetch('/quantum/info');
+    return res.json();
+  },
+  getQuantumGroverSearch: async (targetAccuracy: number = 0.75) => {
+    const res = await fetch(`/quantum/grover-difficulty-search?target_accuracy=${targetAccuracy}`);
+    return res.json();
+  },
+  getQuantumAnnealingOptimizer: async (alpha: number = 0.6, beta: number = 0.4) => {
+    const res = await fetch(`/quantum/annealing-schedule-optimizer?alpha=${alpha}&beta=${beta}`);
+    return res.json();
+  },
 };
 
 // Named exports for convenience (import * as api)
@@ -164,3 +178,7 @@ export const deleteReminder = api.deleteReminder;
 export const getSyncStatus = api.getSyncStatus;
 export const simulateSync = api.simulateSync;
 export const seedFullDemo = api.seedFullDemo;
+export const getQuantumInfo = api.getQuantumInfo;
+export const getQuantumGroverSearch = api.getQuantumGroverSearch;
+export const getQuantumAnnealingOptimizer = api.getQuantumAnnealingOptimizer;
+

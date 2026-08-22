@@ -1,15 +1,15 @@
 """
-grover.py — Grover's Algorithm demonstration for difficulty-level search.
+grover.py -- Grover's Algorithm demonstration for difficulty-level search.
 
 IMPORTANT DISCLAIMER:
   This code runs entirely on a CLASSICAL computer via Qiskit's Aer AerSimulator
   (statevector simulation). It correctly demonstrates Grover's algorithm but
   provides NO quantum speedup because there is no physical quantum hardware
-  involved. The quadratic speedup O(√N) that Grover's algorithm provides
+  involved. The quadratic speedup O(sqrt(N)) that Grover's algorithm provides
   over classical O(N) search is only achievable on real quantum hardware.
 
   Included purely as a quantum-computing research demonstration for the
-  MindMitra hackathon project — NOT part of the production adaptive engine.
+  MindMitra hackathon project -- NOT part of the production adaptive engine.
 """
 
 import math
@@ -29,19 +29,19 @@ def _build_grover_oracle(n_qubits: int, target_state: int) -> QuantumCircuit:
     the phase of that particular basis state.
 
     For a search space of 2^n_qubits items, this oracle applies -1 phase
-    to the state |target_state⟩ and leaves all others unchanged.
+    to the state |target_state> and leaves all others unchanged.
     """
     qr = QuantumRegister(n_qubits, name='q')
     qc = QuantumCircuit(qr)
 
     # Flip qubits that are 0 in the target binary string
-    # (so the all-|1⟩ multi-controlled Z hits exactly |target_state⟩)
+    # (so the all-|1> multi-controlled Z hits exactly |target_state>)
     target_bits = format(target_state, f'0{n_qubits}b')
     for i, bit in enumerate(reversed(target_bits)):
         if bit == '0':
             qc.x(qr[i])
 
-    # Multi-controlled Z gate  (phase flip on |11...1⟩)
+    # Multi-controlled Z gate  (phase flip on |11...1>)
     if n_qubits == 1:
         qc.z(qr[0])
     elif n_qubits == 2:
@@ -63,7 +63,7 @@ def _build_grover_oracle(n_qubits: int, target_state: int) -> QuantumCircuit:
 def _build_diffuser(n_qubits: int) -> QuantumCircuit:
     """
     Grover diffuser (inversion-about-average operator):
-      H^⊗n · (2|0⟩⟨0| - I) · H^⊗n
+      H^(tensor n) * (2|0><0| - I) * H^(tensor n)
     """
     qr = QuantumRegister(n_qubits, name='q')
     qc = QuantumCircuit(qr)
@@ -130,14 +130,14 @@ def run_grover_difficulty_search(
     target_index = difficulty_levels.index(best_level)
 
     # -----------------------------------------------------------------------
-    # Step 2: Determine qubit count — must cover entire search space
+    # Step 2: Determine qubit count -- must cover entire search space
     # -----------------------------------------------------------------------
     n_items = len(difficulty_levels)
     n_qubits = math.ceil(math.log2(n_items)) if n_items > 1 else 1
     n_qubits = max(n_qubits, 1)  # at least 1 qubit
 
-    # Optimal Grover iterations: π/4 · √N
-    n_iterations = max(1, round((math.pi / 4) * math.sqrt(2 ** n_qubits)))
+    # Optimal Grover iterations: floor(pi/4 * sqrt(N)) for exact 2-qubit amplification (1 iteration for N=4)
+    n_iterations = max(1, math.floor((math.pi / 4) * math.sqrt(2 ** n_qubits)))
 
     # -----------------------------------------------------------------------
     # Step 3: Build and run Grover's circuit on Aer simulator
@@ -192,7 +192,7 @@ def run_grover_difficulty_search(
         "quantum_advantage_honest_assessment": (
             "SIMULATED ON CLASSICAL HARDWARE via Qiskit Aer AerSimulator. "
             "This correctly demonstrates Grover's algorithm, which achieves "
-            "O(√N) quantum speedup over classical O(N) search — but ONLY on "
+            "O(sqrt(N)) quantum speedup over classical O(N) search -- but ONLY on "
             "physical quantum hardware. Running on a classical simulator "
             "provides NO actual speedup. Included as an educational "
             "quantum-computing demonstration, not a production optimization."
@@ -204,3 +204,4 @@ def run_grover_difficulty_search(
             "Classical pipeline results are always authoritative."
         ),
     }
+

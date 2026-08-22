@@ -1,5 +1,5 @@
 """
-router.py — FastAPI router for the MindMitra Quantum Research Module.
+router.py -- FastAPI router for the MindMitra Quantum Research Module.
 
 All endpoints are prefixed /quantum/ and are clearly labeled as experimental.
 They are isolated from the production adaptive engine in main.py.
@@ -23,15 +23,15 @@ router = APIRouter(
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 1 — Grover's Algorithm: Difficulty Level Search
+# Endpoint 1 -- Grover's Algorithm: Difficulty Level Search
 # ---------------------------------------------------------------------------
 
 @router.get(
     "/grover-difficulty-search",
-    summary="Grover's Unstructured Search — Find optimal difficulty level",
+    summary="Grover's Unstructured Search -- Find optimal difficulty level",
     description=(
         "Demonstrates Grover's quantum search algorithm to identify the "
-        "difficulty level (from 1–4) whose predicted user accuracy is closest "
+        "difficulty level (from 1-4) whose predicted user accuracy is closest "
         "to a specified target accuracy. "
         "**IMPORTANT**: Simulated on classical hardware via Qiskit AerSimulator. "
         "No real quantum speedup is achieved."
@@ -42,7 +42,7 @@ def grover_difficulty_search(
         default=0.75,
         ge=0.0,
         le=1.0,
-        description="Target predicted accuracy (0.0–1.0). Grover searches for the level closest to this.",
+        description="Target predicted accuracy (0.0-1.0). Grover searches for the level closest to this.",
     ),
     memory_match_accuracy: Optional[float] = Query(default=None, description="Override predicted accuracy for memory_match at level 2"),
     daily_routine_accuracy: Optional[float] = Query(default=None, description="Override predicted accuracy for daily_routine at level 3"),
@@ -51,8 +51,8 @@ def grover_difficulty_search(
     Grover's Search endpoint.
 
     Given difficulty levels [1, 2, 3, 4] and a target predicted accuracy,
-    uses Grover's algorithm to identify the correct level with O(√N) oracle
-    queries — demonstrated on a Qiskit Aer simulator.
+    uses Grover's algorithm to identify the correct level with O(sqrt(N)) oracle
+    queries -- demonstrated on a Qiskit Aer simulator.
 
     The oracle is constructed classically (Grover's requires knowing the target
     in advance for demo purposes), then the full quantum circuit is simulated.
@@ -78,12 +78,12 @@ def grover_difficulty_search(
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 2 — Quantum Annealing: Multi-Game Schedule Optimizer
+# Endpoint 2 -- Quantum Annealing: Multi-Game Schedule Optimizer
 # ---------------------------------------------------------------------------
 
 class AnnealingRequest(BaseModel):
-    alpha: float = Field(default=0.6, ge=0.0, le=1.0, description="Weight for engagement optimization (0–1)")
-    beta:  float = Field(default=0.4, ge=0.0, le=1.0, description="Weight for frustration minimization (0–1)")
+    alpha: float = Field(default=0.6, ge=0.0, le=1.0, description="Weight for engagement optimization (0-1)")
+    beta:  float = Field(default=0.4, ge=0.0, le=1.0, description="Weight for frustration minimization (0-1)")
     current_levels: Optional[dict] = Field(
         default=None,
         description="Optional current difficulty per game, e.g. {\"memory_match\": 2, \"daily_routine\": 1}",
@@ -92,10 +92,10 @@ class AnnealingRequest(BaseModel):
 
 @router.get(
     "/annealing-schedule-optimizer",
-    summary="QUBO Annealing — Optimize difficulty across all 4 cognitive games",
+    summary="QUBO Annealing -- Optimize difficulty across all 4 cognitive games",
     description=(
         "Formulates a QUBO optimization problem that balances user engagement "
-        "vs. frustration across the 4 cognitivegames simultaneously, then "
+        "vs. frustration across the 4 cognitive games simultaneously, then "
         "solves it with a classical simulated annealer (dimod). "
         "**IMPORTANT**: Simulated on classical hardware. No D-Wave or real "
         "quantum annealer is used."
@@ -113,7 +113,7 @@ def annealing_schedule_optimizer(
     QUBO Annealing endpoint.
 
     Formulates the difficulty scheduling as:
-      Minimize: α·Σ(1 - engagement) + β·frustration + γ·one_hot_penalty
+      Minimize: alpha*sum(1 - engagement) + beta*frustration + gamma*one_hot_penalty
 
     The QUBO is solved via classical Simulated Annealing (not actual quantum
     annealing hardware). This demonstrates how a D-Wave quantum annealer
@@ -154,7 +154,7 @@ def quantum_info():
     """
     return {
         "module": "MindMitra Quantum Research Module (Experimental)",
-        "status": "Active — runs alongside production system as isolated demo",
+        "status": "Active -- runs alongside production system as isolated demo",
         "endpoints": {
             "/quantum/grover-difficulty-search":     "Grover's algorithm for difficulty-level search",
             "/quantum/annealing-schedule-optimizer": "QUBO-based multi-game schedule optimization",
@@ -162,7 +162,7 @@ def quantum_info():
         "honest_limitations": [
             "All algorithms run on classical hardware (Qiskit Aer + dimod SA)",
             "No real quantum speedup is achieved in any endpoint",
-            "Qiskit Aer is a statevector simulator — exponential memory on large circuits",
+            "Qiskit Aer is a statevector simulator -- exponential memory on large circuits",
             "Practical Grover advantage requires ~10^6+ item search spaces on real hardware",
             "This module does NOT modify or replace the RandomForest adaptive engine",
         ],
@@ -178,3 +178,4 @@ def quantum_info():
             "dimod": "QUBO/BQM formulation and SimulatedAnnealingSampler",
         },
     }
+

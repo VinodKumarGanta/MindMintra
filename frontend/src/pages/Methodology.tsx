@@ -164,7 +164,146 @@ export default function Methodology() {
             </ul>
           </motion.div>
         </div>
+
+        {/* Quantum Research Module Interactive Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="cosmic-card p-8 mt-10 border border-cyan-500/40 relative overflow-hidden"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 rounded-2xl">
+                <Sparkles size={32} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  Quantum Research Module
+                  <span className="text-xs font-semibold px-2.5 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full">
+                    Experimental Demo
+                  </span>
+                </h2>
+                <p className="text-sm text-cyan-200">
+                  Exploratory quantum computing algorithms (Grover Search & QUBO Annealing) simulated via Qiskit & dimod.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 text-left">
+            {/* Grover Search Interactive Card */}
+            <div className="bg-slate-900/90 p-5 rounded-2xl border border-cyan-500/20 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-white text-base">1. Grover's Algorithm Search</h3>
+                  <span className="text-xs text-cyan-400 font-mono">Qiskit AerSimulator</span>
+                </div>
+                <p className="text-xs text-slate-300 mb-4">
+                  Constructs a 2-qubit phase-kickback oracle and Grover diffuser ($H^{\otimes n} (2|0\rangle\langle0| - I) H^{\otimes n}$) to locate target accuracy difficulty level.
+                </p>
+
+                <div className="mb-4">
+                  <label className="text-xs text-slate-400 block mb-1">Target Accuracy Seeking:</label>
+                  <select
+                    id="grover-target-select"
+                    className="w-full bg-slate-800 text-white text-sm px-3 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value="0.90">90% (Level 1)</option>
+                    <option value="0.78">78% (Level 2)</option>
+                    <option value="0.65">65% (Level 3)</option>
+                    <option value="0.50">50% (Level 4)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  const sel = document.getElementById('grover-target-select') as HTMLSelectElement;
+                  const val = parseFloat(sel?.value || '0.75');
+                  const resultElem = document.getElementById('grover-result-box');
+                  if (resultElem) resultElem.innerText = 'Running Grover quantum circuit...';
+                  try {
+                    const res = await fetch(`/quantum/grover-difficulty-search?target_accuracy=${val}`);
+                    const data = await res.json();
+                    if (resultElem) {
+                      resultElem.innerText = `Recommended Level: Level ${data.result?.recommended_difficulty_level}\n` +
+                        `Probability: ${(data.result?.grover_probability * 100).toFixed(1)}%\n` +
+                        `Classical Verification Match: ${data.classical_verification?.match ? 'EXACT MATCH (100%)' : 'Mismatch'}\n` +
+                        `Qubits: ${data.result?.qubits_used} | Iterations: ${data.result?.grover_iterations}`;
+                    }
+                  } catch (e: any) {
+                    if (resultElem) resultElem.innerText = `Error: ${e.message}`;
+                  }
+                }}
+                className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-cyan-600/20"
+              >
+                Run Grover Quantum Circuit Demo
+              </button>
+
+              <div id="grover-result-box" className="mt-3 p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-mono text-cyan-200 min-h-[60px] whitespace-pre-wrap">
+                Click button to run live Grover search.
+              </div>
+            </div>
+
+            {/* QUBO Annealing Interactive Card */}
+            <div className="bg-slate-900/90 p-5 rounded-2xl border border-purple-500/20 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-white text-base">2. QUBO Annealing Scheduler</h3>
+                  <span className="text-xs text-purple-400 font-mono">dimod SA Sampler</span>
+                </div>
+                <p className="text-xs text-slate-300 mb-4">
+                  Formulates a 16-variable QUBO matrix balancing user engagement ($\alpha$) vs. frustration ($\beta$) across all 4 cognitive games simultaneously.
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Engagement ($\alpha$): 0.6</label>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">Frustration ($\beta$): 0.4</label>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  const resultElem = document.getElementById('qubo-result-box');
+                  if (resultElem) resultElem.innerText = 'Sampling QUBO energy landscape...';
+                  try {
+                    const res = await fetch('/quantum/annealing-schedule-optimizer?alpha=0.6&beta=0.4');
+                    const data = await res.json();
+                    if (resultElem) {
+                      const recs = data.result?.recommended_difficulty_levels || {};
+                      resultElem.innerText = `Optimal Schedule:\n` +
+                        `• Memory Match: Level ${recs.memory_match}\n` +
+                        `• Daily Routine: Level ${recs.daily_routine}\n` +
+                        `• Object Recognition: Level ${recs.object_recognition}\n` +
+                        `• Pattern Recall: Level ${recs.pattern_recall}\n` +
+                        `Energy: ${data.result?.qubo_energy} | Reads: ${data.result?.num_annealing_reads}`;
+                    }
+                  } catch (e: any) {
+                    if (resultElem) resultElem.innerText = `Error: ${e.message}`;
+                  }
+                }}
+                className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-purple-600/20"
+              >
+                Run QUBO Annealing Optimizer
+              </button>
+
+              <div id="qubo-result-box" className="mt-3 p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-mono text-purple-200 min-h-[60px] whitespace-pre-wrap">
+                Click button to run QUBO annealing schedule.
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-400 mt-4 text-center">
+            * <strong>Honest Disclaimer:</strong> Runs on classical CPU simulators (Qiskit Aer & dimod SA). Fully isolated from the production Random Forest adaptive difficulty pipeline in <code className="text-indigo-300">backend/main.py</code>.
+          </p>
+        </motion.div>
       </div>
     </div>
   );
 }
+

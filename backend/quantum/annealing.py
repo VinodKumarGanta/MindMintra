@@ -1,5 +1,5 @@
 """
-annealing.py — Quantum Annealing (QUBO) inspired scheduling demo.
+annealing.py -- Quantum Annealing (QUBO) inspired scheduling demo.
 
 IMPORTANT DISCLAIMER:
   This module uses D-Wave's `dimod` library with a pure CLASSICAL Simulated
@@ -8,9 +8,9 @@ IMPORTANT DISCLAIMER:
   cloud hardware access; this simulation runs on a conventional CPU.
 
   The QUBO formulation here is mathematically equivalent to what would be
-  submitted to a D-Wave machine — but the solving is done classically.
+  submitted to a D-Wave machine -- but the solving is done classically.
   Included as a quantum-inspired research demonstration for MindMitra's
-  hackathon submission — NOT part of the production adaptive engine.
+  hackathon submission -- NOT part of the production adaptive engine.
 """
 
 import itertools
@@ -29,21 +29,21 @@ import dimod
 #
 # Cost function:
 #   Minimize:
-#     α · Σ_g engagement_loss(g, l)     (avoid boredom — too easy)
-#   + β · Σ_g frustration_cost(g, l)    (avoid frustration — too hard)
-#   + γ · Σ_g one_hot_penalty(g)        (exactly one level per game)
+#     alpha * sum_g engagement_loss(g, l)     (avoid boredom -- too easy)
+#   + beta * sum_g frustration_cost(g, l)    (avoid frustration -- too hard)
+#   + gamma * sum_g one_hot_penalty(g)        (exactly one level per game)
 #
-# Where both α and β are tunable, reflecting the caregiver's preference
+# Where both alpha and beta are tunable, reflecting the caregiver's preference
 # between keeping the user engaged vs. keeping them comfortable.
 # ---------------------------------------------------------------------------
 
 GAMES = ["memory_match", "daily_routine", "object_recognition", "pattern_recall"]
 LEVELS = [1, 2, 3, 4]
 
-# Engagement score: higher level → more engaging (normalized)
+# Engagement score: higher level -> more engaging (normalized)
 ENGAGEMENT = {1: 0.40, 2: 0.65, 3: 0.85, 4: 0.95}
 
-# Frustration score: higher level → more frustrating (normalized)
+# Frustration score: higher level -> more frustrating (normalized)
 FRUSTRATION = {1: 0.05, 2: 0.20, 3: 0.55, 4: 0.90}
 
 
@@ -64,7 +64,7 @@ def build_qubo(
 
     Parameters
     ----------
-    alpha         : weight for engagement cost (want to maximize → minimize loss)
+    alpha         : weight for engagement cost (want to maximize -> minimize loss)
     beta          : weight for frustration cost (want to minimize)
     gamma         : penalty weight for one-hot constraint violation
     current_levels: optional {game: current_level} to bias near-current solutions
@@ -86,10 +86,10 @@ def build_qubo(
         for lvl in LEVELS:
             v = _var(game, lvl)
 
-            # Engagement loss: we WANT high engagement, so cost = α · (1 - engagement)
+            # Engagement loss: we WANT high engagement, so cost = alpha * (1 - engagement)
             engagement_loss = alpha * (1.0 - ENGAGEMENT[lvl])
 
-            # Frustration cost: we WANT low frustration, so cost = β · frustration
+            # Frustration cost: we WANT low frustration, so cost = beta * frustration
             frustration_cost = beta * FRUSTRATION[lvl]
 
             # One-hot diagonal: -gamma per variable (encourages selection)
@@ -104,7 +104,7 @@ def build_qubo(
 
             add_Q(v, v, engagement_loss + frustration_cost + one_hot_diag + jump_cost)
 
-        # One-hot cross terms: +2γ for every pair within the same game
+        # One-hot cross terms: +2*gamma for every pair within the same game
         # (penalizes choosing more than one level)
         for v1, v2 in itertools.combinations(vars_for_game, 2):
             add_Q(v1, v2, 2.0 * gamma)
@@ -138,7 +138,7 @@ def run_qubo_annealing(
 
     bqm = dimod.BinaryQuadraticModel.from_qubo(Q)
 
-    # Simulated Annealing sampler (classical CPU — no quantum hardware)
+    # Simulated Annealing sampler (classical CPU -- no quantum hardware)
     sampler    = dimod.SimulatedAnnealingSampler()
     sampleset  = sampler.sample(bqm, num_reads=num_reads, num_sweeps=1000)
     best_sample = sampleset.first.sample
@@ -171,7 +171,7 @@ def run_qubo_annealing(
         }
 
     return {
-        "algorithm": "Quantum Annealing (QUBO) — Classical SA Simulation",
+        "algorithm": "Quantum Annealing (QUBO) -- Classical SA Simulation",
         "result": {
             "recommended_difficulty_levels": recommended,
             "qubo_energy":                  round(best_energy, 4),
@@ -186,16 +186,16 @@ def run_qubo_annealing(
         "qubo_details": {
             "num_variables":   len(set(v for pair in Q for v in pair)),
             "num_couplers":    sum(1 for (v1, v2) in Q if v1 != v2),
-            "problem_size":    f"{len(GAMES)} games × {len(LEVELS)} levels = {len(GAMES)*len(LEVELS)} binary variables",
+            "problem_size":    f"{len(GAMES)} games x {len(LEVELS)} levels = {len(GAMES)*len(LEVELS)} binary variables",
             "formulation":     (
-                "Minimize: α·Σ(1-engagement) + β·frustration + γ·one_hot_penalty. "
+                "Minimize: alpha*sum(1-engagement) + beta*frustration + gamma*one_hot_penalty. "
                 "Competing cost terms balance user engagement with frustration prevention."
             ),
         },
         "quantum_advantage_honest_assessment": (
             "CLASSICAL SIMULATION via dimod SimulatedAnnealingSampler. "
             "Real D-Wave quantum annealers exploit quantum tunneling to "
-            "escape local optima — a property unavailable on classical hardware. "
+            "escape local optima -- a property unavailable on classical hardware. "
             "This simulation uses classical simulated annealing, which is "
             "mathematically equivalent in formulation but not in execution. "
             "No quantum speedup is achieved here. Included to demonstrate "
@@ -209,3 +209,4 @@ def run_qubo_annealing(
             "Classical pipeline results are always authoritative."
         ),
     }
+
