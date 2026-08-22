@@ -15,12 +15,9 @@ export default function SignupPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Live Password Strength Requirements
-  const reqMinLength = password.length >= 8;
-  const reqUppercase = /[A-Z]/.test(password);
-  const reqNumber = /[0-9]/.test(password);
-  const reqSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-  const isPasswordValid = reqMinLength && reqUppercase && reqNumber && reqSymbol;
+  // Simple, flexible password requirements (min 4 characters, letters/numbers)
+  const reqMinLength = password.length >= 4;
+  const isPasswordValid = reqMinLength;
 
   const validateEmail = (val: string) => {
     return /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(val.trim());
@@ -37,11 +34,11 @@ export default function SignupPage() {
     }
     const cleanEmail = email.trim();
     if (!validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid email address.');
+      setErrorMessage('Please enter a valid Username / Email address.');
       return;
     }
     if (!isPasswordValid) {
-      setErrorMessage('Please satisfy all password strength requirements.');
+      setErrorMessage('Password must be at least 4 characters long.');
       return;
     }
     if (password !== confirmPassword) {
@@ -58,7 +55,7 @@ export default function SignupPage() {
         confirm_password: confirmPassword,
       });
 
-      setSuccessMessage('Account created successfully! Redirecting to caregiver portal...');
+      setSuccessMessage('Account created successfully! Redirecting to caretaker dashboard...');
       if (res.user) {
         localStorage.setItem('mindmitra_caregiver_token', res.token || 'demo_token');
         localStorage.setItem('mindmitra_caregiver_user', JSON.stringify(res.user));
@@ -95,7 +92,7 @@ export default function SignupPage() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 mx-auto mb-4">
             <BrainCircuit size={32} />
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Caregiver Sign Up</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Caretaker / Caregiver Sign Up</h1>
           <p className="text-sm text-slate-400 mt-1">Create an account to track cognitive progression and insights</p>
         </div>
 
@@ -128,7 +125,7 @@ export default function SignupPage() {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Dr. Ananya Sharma"
+                  placeholder="e.g. Ananya Sharma"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
@@ -137,7 +134,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Email Address (Login Identifier)
+                Username (User Email ID)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -147,7 +144,7 @@ export default function SignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ananya.sharma@example.com"
+                  placeholder="name@example.com"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
@@ -156,7 +153,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Password
+                Password (Letters, numbers)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -166,31 +163,18 @@ export default function SignupPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter password (letters, numbers)"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
               </div>
 
-              {/* Inline Live Password Strength Checklist */}
+              {/* Password Requirement Info */}
               {password.length > 0 && (
-                <div className="mt-3 p-3 bg-slate-950/80 border border-slate-800 rounded-xl space-y-1.5 text-xs">
-                  <p className="font-semibold text-slate-400 mb-1">Password Requirements:</p>
-                  <div className={`flex items-center gap-2 ${reqMinLength ? 'text-emerald-400' : 'text-slate-500'}`}>
-                    {reqMinLength ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                    <span>At least 8 characters long</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${reqUppercase ? 'text-emerald-400' : 'text-slate-500'}`}>
-                    {reqUppercase ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                    <span>Contains at least one uppercase letter (A-Z)</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${reqNumber ? 'text-emerald-400' : 'text-slate-500'}`}>
-                    {reqNumber ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                    <span>Contains at least one number (0-9)</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${reqSymbol ? 'text-emerald-400' : 'text-slate-500'}`}>
-                    {reqSymbol ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                    <span>Contains at least one special symbol (!@#$)</span>
+                <div className="mt-2 text-xs">
+                  <div className={`flex items-center gap-1.5 ${reqMinLength ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {reqMinLength ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                    <span>Minimum 4 characters (letters, numbers)</span>
                   </div>
                 </div>
               )}
@@ -208,7 +192,7 @@ export default function SignupPage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Confirm password"
                   className={`w-full pl-11 pr-4 py-3.5 bg-slate-950 border rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 text-base transition-all ${
                     confirmPassword && confirmPassword !== password
                       ? 'border-rose-500/60 focus:ring-rose-500/20'
@@ -232,7 +216,7 @@ export default function SignupPage() {
               ) : (
                 <>
                   <UserPlus size={20} />
-                  <span>Create Caregiver Account</span>
+                  <span>Create Caretaker Account</span>
                 </>
               )}
             </button>
@@ -251,3 +235,4 @@ export default function SignupPage() {
     </div>
   );
 }
+

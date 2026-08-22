@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Mail, Lock, KeyRound, ArrowLeft, AlertCircle, CheckCircle2, RefreshCw, XCircle, ShieldCheck } from 'lucide-react';
+import { BrainCircuit, Mail, Lock, KeyRound, ArrowLeft, AlertCircle, CheckCircle2, RefreshCw, XCircle, ShieldCheck, User } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function ForgotPasswordFlow() {
@@ -36,12 +36,9 @@ export default function ForgotPasswordFlow() {
     return () => clearInterval(interval);
   }, [timerActive, timerSeconds]);
 
-  // Live Password Strength Requirements for step 3
-  const reqMinLength = newPassword.length >= 8;
-  const reqUppercase = /[A-Z]/.test(newPassword);
-  const reqNumber = /[0-9]/.test(newPassword);
-  const reqSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
-  const isPasswordValid = reqMinLength && reqUppercase && reqNumber && reqSymbol;
+  // Password requirements for step 3 (min 4 chars)
+  const reqMinLength = newPassword.length >= 4;
+  const isPasswordValid = reqMinLength;
 
   const validateEmail = (val: string) => {
     return /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(val.trim());
@@ -54,7 +51,7 @@ export default function ForgotPasswordFlow() {
 
     const cleanEmail = email.trim();
     if (!validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid registered email address.');
+      setErrorMessage('Please enter a valid registered Username (Email ID).');
       return;
     }
 
@@ -124,7 +121,7 @@ export default function ForgotPasswordFlow() {
     setErrorMessage(null);
 
     if (!isPasswordValid) {
-      setErrorMessage('Please satisfy all password strength requirements.');
+      setErrorMessage('Password must be at least 4 characters long.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -170,8 +167,8 @@ export default function ForgotPasswordFlow() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 mx-auto mb-4">
             <KeyRound size={32} />
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Reset Caregiver Password</h1>
-          <p className="text-sm text-slate-400 mt-1">Step-by-step OTP verification for account recovery</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Caretaker Password Recovery</h1>
+          <p className="text-sm text-slate-400 mt-1">Change or reset your caretaker password with OTP verification</p>
         </div>
 
         {/* Auth Card */}
@@ -183,26 +180,26 @@ export default function ForgotPasswordFlow() {
             </div>
           )}
 
-          {/* STEP 1: ENTER EMAIL */}
+          {/* STEP 1: ENTER USERNAME / EMAIL */}
           {step === 1 && (
             <form onSubmit={handleSendOTP} className="space-y-5">
               <p className="text-sm text-slate-300">
-                Enter your registered caregiver email address. We will generate a 6-digit verification code.
+                Enter your registered Username (Email ID). We will generate a 6-digit verification code.
               </p>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Email Address
+                  Username (User Email ID)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                    <Mail size={18} />
+                    <User size={18} />
                   </div>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="caregiver@example.com"
+                    placeholder="name@example.com"
                     className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                     required
                   />
@@ -289,7 +286,7 @@ export default function ForgotPasswordFlow() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  New Password
+                  New Password (Letters, numbers)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -299,30 +296,17 @@ export default function ForgotPasswordFlow() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="Enter new password (min 4 characters)"
                     className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base"
                     required
                   />
                 </div>
 
-                {/* Inline Password Checklist */}
                 {newPassword.length > 0 && (
-                  <div className="mt-3 p-3 bg-slate-950/80 border border-slate-800 rounded-xl space-y-1.5 text-xs">
-                    <div className={`flex items-center gap-2 ${reqMinLength ? 'text-emerald-400' : 'text-slate-500'}`}>
-                      {reqMinLength ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                      <span>At least 8 characters long</span>
-                    </div>
-                    <div className={`flex items-center gap-2 ${reqUppercase ? 'text-emerald-400' : 'text-slate-500'}`}>
-                      {reqUppercase ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                      <span>Contains at least one uppercase letter (A-Z)</span>
-                    </div>
-                    <div className={`flex items-center gap-2 ${reqNumber ? 'text-emerald-400' : 'text-slate-500'}`}>
-                      {reqNumber ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                      <span>Contains at least one number (0-9)</span>
-                    </div>
-                    <div className={`flex items-center gap-2 ${reqSymbol ? 'text-emerald-400' : 'text-slate-500'}`}>
-                      {reqSymbol ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                      <span>Contains at least one special symbol (!@#$)</span>
+                  <div className="mt-2 text-xs">
+                    <div className={`flex items-center gap-1.5 ${reqMinLength ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      {reqMinLength ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                      <span>Minimum 4 characters (letters, numbers)</span>
                     </div>
                   </div>
                 )}
@@ -340,7 +324,7 @@ export default function ForgotPasswordFlow() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="Confirm new password"
                     className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base"
                     required
                   />
@@ -369,14 +353,14 @@ export default function ForgotPasswordFlow() {
               </div>
               <h2 className="text-2xl font-bold text-white">Password Reset Complete!</h2>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Your caregiver account password has been updated securely. You can now log in using your new credentials.
+                Your caretaker account password has been updated securely. You can now log in using your new credentials.
               </p>
 
               <button
                 onClick={() => navigate('/auth/login')}
                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/30 transition-all"
               >
-                Proceed to Caregiver Login
+                Proceed to Caretaker Login
               </button>
             </div>
           )}
@@ -394,3 +378,4 @@ export default function ForgotPasswordFlow() {
     </div>
   );
 }
+

@@ -57,7 +57,7 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-300 hover:text-white px-4 py-2 bg-slate-900/80 border border-indigo-500/30 hover:border-indigo-400 rounded-xl transition-all"
             >
               <LogIn size={16} />
-              Caregiver Login
+              Caretaker Login
             </Link>
             <Link
               to="/auth/signup"
@@ -121,9 +121,10 @@ export default function LandingPage() {
             className="w-full sm:w-auto px-8 py-4 bg-slate-900/90 border border-indigo-500/40 hover:border-indigo-400 text-indigo-200 hover:text-white text-lg font-bold rounded-2xl transition-all flex items-center justify-center gap-3"
           >
             <LogIn size={20} />
-            <span>Caregiver Portal</span>
+            <span>Caretaker Portal</span>
           </button>
         </motion.div>
+
 
         {/* Hero Visual Card */}
         <motion.div

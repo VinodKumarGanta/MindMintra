@@ -326,10 +326,11 @@ def caregiver_signup(req: CaregiverSignupRequest):
     
     if not validate_email_format(email):
         raise HTTPException(status_code=400, detail="Invalid email address format.")
-    if len(req.password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long.")
+    if len(req.password) < 4:
+        raise HTTPException(status_code=400, detail="Password must be at least 4 characters long.")
     if req.password != req.confirm_password:
         raise HTTPException(status_code=400, detail="Password confirmation does not match.")
+
         
     with get_db() as conn:
         c = conn.cursor()
@@ -434,10 +435,11 @@ def caregiver_reset_password(req: ResetPasswordRequest):
     email = req.email.strip().lower()
     otp_code = req.otp_code.strip()
     
-    if len(req.new_password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long.")
+    if len(req.new_password) < 4:
+        raise HTTPException(status_code=400, detail="Password must be at least 4 characters long.")
     if req.new_password != req.confirm_password:
         raise HTTPException(status_code=400, detail="Password confirmation does not match.")
+
         
     with get_db() as conn:
         c = conn.cursor()

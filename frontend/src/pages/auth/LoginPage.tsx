@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Mail, Lock, LogIn, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { BrainCircuit, User, Lock, LogIn, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAppContext } from '../../context/AppContext';
 
@@ -9,7 +9,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setCurrentUser } = useAppContext();
 
-  const [email, setEmail] = useState('');
+  const [usernameEmail, setUsernameEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,13 +24,13 @@ export default function LoginPage() {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setErrorMessage('Please enter your email address.');
+    const cleanUsername = usernameEmail.trim();
+    if (!cleanUsername) {
+      setErrorMessage('Please enter your Username (Email ID).');
       return;
     }
-    if (!validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid email address (e.g. caregiver@example.com).');
+    if (!validateEmail(cleanUsername)) {
+      setErrorMessage('Please enter a valid Username / Email (e.g. caretaker@example.com).');
       return;
     }
     if (!password) {
@@ -40,8 +40,8 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await api.loginCaregiver({ email: cleanEmail, password });
-      setSuccessMessage('Login successful! Redirecting to caregiver portal...');
+      const res = await api.loginCaregiver({ email: cleanUsername, password });
+      setSuccessMessage('Login successful! Redirecting to caretaker dashboard...');
       
       if (res.user) {
         localStorage.setItem('mindmitra_caregiver_token', res.token || 'demo_token');
@@ -52,7 +52,7 @@ export default function LoginPage() {
         navigate('/caregiver');
       }, 1000);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Invalid email or password. Please check your credentials.');
+      setErrorMessage(err.message || 'Invalid Username (Email ID) or password. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -79,8 +79,8 @@ export default function LoginPage() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 mx-auto mb-4">
             <BrainCircuit size={32} />
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Caregiver Portal</h1>
-          <p className="text-sm text-slate-400 mt-1">Log in to view longitudinal insights and manage user care</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Caretaker / Caregiver Login</h1>
+          <p className="text-sm text-slate-400 mt-1">Sign in with your registered Username and Password</p>
         </div>
 
         {/* Auth Card */}
@@ -102,17 +102,17 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                Email Address
+                Username (User Email ID)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                  <Mail size={18} />
+                  <User size={18} />
                 </div>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="caregiver@example.com"
+                  value={usernameEmail}
+                  onChange={(e) => setUsernameEmail(e.target.value)}
+                  placeholder="name@example.com"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
@@ -122,12 +122,13 @@ export default function LoginPage() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Password
+                  Password (Letters, numbers)
                 </label>
                 <Link
                   to="/auth/forgot-password"
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium"
+                  className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1"
                 >
+                  <KeyRound size={13} />
                   Forgot Password?
                 </Link>
               </div>
@@ -139,7 +140,7 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
@@ -156,17 +157,23 @@ export default function LoginPage() {
               ) : (
                 <>
                   <LogIn size={20} />
-                  <span>Log In</span>
+                  <span>Log In as Caretaker</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+          <div className="mt-6 pt-5 border-t border-slate-800 flex flex-col gap-2.5 text-center">
             <p className="text-sm text-slate-400">
-              New caregiver?{' '}
+              New caretaker?{' '}
               <Link to="/auth/signup" className="text-indigo-400 hover:text-indigo-300 font-semibold ml-1">
                 Create an account
+              </Link>
+            </p>
+            <p className="text-xs text-slate-500">
+              Want to change password?{' '}
+              <Link to="/auth/forgot-password" className="text-purple-400 hover:text-purple-300 font-medium">
+                Reset / Change Password
               </Link>
             </p>
           </div>
@@ -175,3 +182,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
