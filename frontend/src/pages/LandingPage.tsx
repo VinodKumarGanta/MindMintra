@@ -21,7 +21,10 @@ import {
   UserPlus,
 } from 'lucide-react';
 
+import ThemeSelector from '../components/ThemeSelector';
+
 export default function LandingPage() {
+
   const navigate = useNavigate();
 
   return (
@@ -65,9 +68,11 @@ export default function LandingPage() {
             >
               Get Started
             </Link>
+            <ThemeSelector />
           </div>
         </div>
       </header>
+
 
       {/* 1. HERO SECTION */}
       <section className="relative pt-16 pb-24 px-6 max-w-7xl mx-auto text-center">

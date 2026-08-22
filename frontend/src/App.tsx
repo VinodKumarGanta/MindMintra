@@ -145,22 +145,33 @@ function AppContent() {
               <span className="text-xs mt-1 font-medium">Demo</span>
             </Link>
 
+            <div className="flex flex-col items-center justify-center p-1">
+              <ThemeSelector compact />
+              <span className="text-[10px] text-slate-400 mt-0.5">Theme</span>
+            </div>
           </div>
         </nav>
       )}
+
 
     </div>
   );
 }
 
+import { ThemeProvider } from './context/ThemeContext';
+import ThemeSelector from './components/ThemeSelector';
+
 function App() {
   return (
     <BrowserRouter>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
+      <ThemeProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
 
 export default App;
+

@@ -5,6 +5,8 @@ import { TrendingDown, TrendingUp, Minus, AlertCircle, ArrowLeft, Users, Sparkle
 import { api } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import { User, TrendData, GameSession, CognitiveDomain, FamiliarPerson } from '../types';
+import ThemeSelector from '../components/ThemeSelector';
+
 
 
 const TREND_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any; label: string }> = {
@@ -129,8 +131,10 @@ export default function Dashboard() {
                 </option>
               ))}
             </select>
+            <ThemeSelector />
           </div>
         )}
+
       </nav>
 
       <div className="max-w-7xl mx-auto p-6 flex flex-col gap-6">

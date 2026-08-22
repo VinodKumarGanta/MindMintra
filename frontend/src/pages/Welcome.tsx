@@ -8,7 +8,10 @@ import { User, Language } from '../types';
 import { Brain, ArrowRight, Activity, Volume2, VolumeX, Globe, Users, Sparkles, ShieldCheck, Play, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import ThemeSelector from '../components/ThemeSelector';
+
 export default function Welcome() {
+
   const { t, language, setLanguage } = useTranslation();
   const { setCurrentUser } = useAppContext();
   const { speak, testVoice, isSpeaking, isPreparingCloudAudio, voiceEnabled, setVoiceEnabled, isVoiceAvailable, detectedVoice, ttsProvider, lastLocale } = useVoice();
@@ -61,7 +64,12 @@ export default function Welcome() {
 
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-6 text-center relative z-10 min-h-[90vh]">
+      <div className="absolute top-4 right-6 z-20">
+        <ThemeSelector />
+      </div>
+
       {/* Title & Cosmic Neural Metaphor */}
+
       <div className="flex flex-col items-center mb-8">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}

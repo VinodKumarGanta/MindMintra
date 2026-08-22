@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SpaceBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,6 +26,7 @@ export default function SpaceBackground() {
     window.addEventListener('resize', handleResize);
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isLight = resolvedTheme === 'light';
 
     // Star & Constellation Nodes
     interface Star {
@@ -47,7 +50,7 @@ export default function SpaceBackground() {
     }
 
     let stars: Star[] = [];
-    const numStars = Math.min(80, Math.floor((width * height) / 16000));
+    const numStars = Math.min(75, Math.floor((width * height) / 16000));
 
     const rings: OrbitRing[] = [
       { cx: width * 0.85, cy: height * 0.25, rx: 220, ry: 90, angle: 0.2, speed: 0.0003 },
@@ -58,7 +61,7 @@ export default function SpaceBackground() {
       stars = [];
       for (let i = 0; i < numStars; i++) {
         const radius = Math.random() * 1.5 + 0.5;
-        const baseAlpha = Math.random() * 0.6 + 0.2;
+        const baseAlpha = isLight ? (Math.random() * 0.4 + 0.2) : (Math.random() * 0.6 + 0.2);
         stars.push({
           x: Math.random() * width,
           y: Math.random() * height,
@@ -77,87 +80,169 @@ export default function SpaceBackground() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Deep space base gradient
-      const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-      bgGrad.addColorStop(0, '#040714');
-      bgGrad.addColorStop(0.4, '#080e28');
-      bgGrad.addColorStop(0.7, '#070b1e');
-      bgGrad.addColorStop(1, '#03050e');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
+      if (isLight) {
+        // Light mode: Soft healthcare mist gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, '#f8fafc');
+        bgGrad.addColorStop(0.5, '#f1f5f9');
+        bgGrad.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
 
-      // Faint nebula soft glows
-      const nebula1 = ctx.createRadialGradient(width * 0.75, height * 0.2, 50, width * 0.75, height * 0.2, 450);
-      nebula1.addColorStop(0, 'rgba(79, 70, 229, 0.09)');
-      nebula1.addColorStop(0.5, 'rgba(147, 51, 234, 0.04)');
-      nebula1.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = nebula1;
-      ctx.fillRect(0, 0, width, height);
+        // Soft pastel ambient glows
+        const nebula1 = ctx.createRadialGradient(width * 0.8, height * 0.2, 50, width * 0.8, height * 0.2, 450);
+        nebula1.addColorStop(0, 'rgba(99, 102, 241, 0.07)');
+        nebula1.addColorStop(0.5, 'rgba(168, 85, 247, 0.03)');
+        nebula1.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = nebula1;
+        ctx.fillRect(0, 0, width, height);
 
-      const nebula2 = ctx.createRadialGradient(width * 0.2, height * 0.8, 50, width * 0.2, height * 0.8, 500);
-      nebula2.addColorStop(0, 'rgba(14, 165, 233, 0.08)');
-      nebula2.addColorStop(0.6, 'rgba(37, 99, 235, 0.03)');
-      nebula2.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = nebula2;
-      ctx.fillRect(0, 0, width, height);
+        const nebula2 = ctx.createRadialGradient(width * 0.2, height * 0.8, 50, width * 0.2, height * 0.8, 500);
+        nebula2.addColorStop(0, 'rgba(6, 182, 212, 0.06)');
+        nebula2.addColorStop(0.6, 'rgba(59, 130, 246, 0.02)');
+        nebula2.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = nebula2;
+        ctx.fillRect(0, 0, width, height);
 
-      // Subtle celestial orbit paths
-      ctx.lineWidth = 1;
-      rings.forEach(r => {
-        ctx.save();
-        ctx.translate(r.cx, r.cy);
-        ctx.rotate(r.angle);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, r.rx, r.ry, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.04)';
-        ctx.stroke();
-        ctx.restore();
-        if (!prefersReducedMotion) {
-          r.angle += r.speed;
-        }
-      });
+        // Subtle celestial orbit paths
+        ctx.lineWidth = 1;
+        rings.forEach(r => {
+          ctx.save();
+          ctx.translate(r.cx, r.cy);
+          ctx.rotate(r.angle);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r.rx, r.ry, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(99, 102, 241, 0.06)';
+          ctx.stroke();
+          ctx.restore();
+          if (!prefersReducedMotion) {
+            r.angle += r.speed;
+          }
+        });
 
-      // Constellation connection lines between nearby stars
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < stars.length; i++) {
-        for (let j = i + 1; j < stars.length; j++) {
-          const dx = stars[i].x - stars[j].x;
-          const dy = stars[i].y - stars[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 110) {
-            const lineAlpha = (1 - dist / 110) * 0.12;
-            ctx.strokeStyle = `rgba(165, 180, 252, ${lineAlpha})`;
-            ctx.beginPath();
-            ctx.moveTo(stars[i].x, stars[i].y);
-            ctx.lineTo(stars[j].x, stars[j].y);
-            ctx.stroke();
+        // Constellation connection lines (soft indigo)
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i < stars.length; i++) {
+          for (let j = i + 1; j < stars.length; j++) {
+            const dx = stars[i].x - stars[j].x;
+            const dy = stars[i].y - stars[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              const lineAlpha = (1 - dist / 100) * 0.12;
+              ctx.strokeStyle = `rgba(99, 102, 241, ${lineAlpha})`;
+              ctx.beginPath();
+              ctx.moveTo(stars[i].x, stars[i].y);
+              ctx.lineTo(stars[j].x, stars[j].y);
+              ctx.stroke();
+            }
           }
         }
-      }
 
-      // Draw and animate stars
-      stars.forEach(star => {
-        if (!prefersReducedMotion) {
-          star.pulseVal += star.pulseSpeed;
-          star.alpha = star.baseAlpha + Math.sin(star.pulseVal) * 0.2;
-          star.y += star.speed * 0.2;
-          if (star.y < 0) star.y = height;
-          if (star.y > height) star.y = 0;
-        }
+        // Draw stars as soft lavender/slate constellation nodes
+        stars.forEach(star => {
+          if (!prefersReducedMotion) {
+            star.pulseVal += star.pulseSpeed;
+            star.alpha = star.baseAlpha + Math.sin(star.pulseVal) * 0.15;
+            star.y += star.speed * 0.15;
+            if (star.y < 0) star.y = height;
+            if (star.y > height) star.y = 0;
+          }
 
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(224, 231, 255, ${Math.max(0.1, star.alpha)})`;
-        ctx.fill();
-
-        // Soft glow for slightly larger stars
-        if (star.radius > 1.3) {
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(199, 210, 254, ${star.alpha * 0.2})`;
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(99, 102, 241, ${Math.max(0.15, star.alpha)})`;
           ctx.fill();
+
+          if (star.radius > 1.2) {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.radius * 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(168, 85, 247, ${star.alpha * 0.15})`;
+            ctx.fill();
+          }
+        });
+
+      } else {
+        // Dark mode: Deep space base gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, '#040714');
+        bgGrad.addColorStop(0.4, '#080e28');
+        bgGrad.addColorStop(0.7, '#070b1e');
+        bgGrad.addColorStop(1, '#03050e');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Faint nebula soft glows
+        const nebula1 = ctx.createRadialGradient(width * 0.75, height * 0.2, 50, width * 0.75, height * 0.2, 450);
+        nebula1.addColorStop(0, 'rgba(79, 70, 229, 0.09)');
+        nebula1.addColorStop(0.5, 'rgba(147, 51, 234, 0.04)');
+        nebula1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = nebula1;
+        ctx.fillRect(0, 0, width, height);
+
+        const nebula2 = ctx.createRadialGradient(width * 0.2, height * 0.8, 50, width * 0.2, height * 0.8, 500);
+        nebula2.addColorStop(0, 'rgba(14, 165, 233, 0.08)');
+        nebula2.addColorStop(0.6, 'rgba(37, 99, 235, 0.03)');
+        nebula2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = nebula2;
+        ctx.fillRect(0, 0, width, height);
+
+        // Subtle celestial orbit paths
+        ctx.lineWidth = 1;
+        rings.forEach(r => {
+          ctx.save();
+          ctx.translate(r.cx, r.cy);
+          ctx.rotate(r.angle);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r.rx, r.ry, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.04)';
+          ctx.stroke();
+          ctx.restore();
+          if (!prefersReducedMotion) {
+            r.angle += r.speed;
+          }
+        });
+
+        // Constellation connection lines between nearby stars
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < stars.length; i++) {
+          for (let j = i + 1; j < stars.length; j++) {
+            const dx = stars[i].x - stars[j].x;
+            const dy = stars[i].y - stars[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 110) {
+              const lineAlpha = (1 - dist / 110) * 0.12;
+              ctx.strokeStyle = `rgba(165, 180, 252, ${lineAlpha})`;
+              ctx.beginPath();
+              ctx.moveTo(stars[i].x, stars[i].y);
+              ctx.lineTo(stars[j].x, stars[j].y);
+              ctx.stroke();
+            }
+          }
         }
-      });
+
+        // Draw and animate stars
+        stars.forEach(star => {
+          if (!prefersReducedMotion) {
+            star.pulseVal += star.pulseSpeed;
+            star.alpha = star.baseAlpha + Math.sin(star.pulseVal) * 0.2;
+            star.y += star.speed * 0.2;
+            if (star.y < 0) star.y = height;
+            if (star.y > height) star.y = 0;
+          }
+
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(224, 231, 255, ${Math.max(0.1, star.alpha)})`;
+          ctx.fill();
+
+          if (star.radius > 1.3) {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(199, 210, 254, ${star.alpha * 0.2})`;
+            ctx.fill();
+          }
+        });
+      }
 
       if (!prefersReducedMotion) {
         animationFrameId = requestAnimationFrame(render);
@@ -170,14 +255,15 @@ export default function SpaceBackground() {
       window.removeEventListener('resize', handleResize);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [resolvedTheme]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300"
       style={{ opacity: 0.95 }}
       aria-hidden="true"
     />
   );
 }
+
