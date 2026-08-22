@@ -17,7 +17,20 @@ async function fetchJSON<T>(url: string, options: RequestInit = {}, cacheKey?: s
       headers: { 'Content-Type': 'application/json' },
       ...options,
     });
-    if (!response.ok) throw new Error(response.statusText);
+    if (!response.ok) {
+      // Extract the actual error detail from the JSON response body
+      try {
+        const errBody = await response.json();
+        const detail = errBody?.detail || errBody?.message || response.statusText;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      } catch (parseErr: any) {
+        // If we already threw above, re-throw it; otherwise fall back to status text
+        if (parseErr.message && parseErr.message !== 'Unexpected end of JSON input') {
+          throw parseErr;
+        }
+        throw new Error(response.statusText);
+      }
+    }
     const data = await response.json();
     if (cacheKey) saveToCache(cacheKey, data);
     return data;
@@ -29,6 +42,7 @@ async function fetchJSON<T>(url: string, options: RequestInit = {}, cacheKey?: s
     throw err;
   }
 }
+
 
 export const api = {
   // Users
