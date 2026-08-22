@@ -40,7 +40,7 @@ npm run dev
 ```
 
 ### 4. Open the App
-Navigate to http://localhost:3000
+Navigate to https://mindmithra.pages.dev
 
 ---
 
