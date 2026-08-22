@@ -62,8 +62,9 @@ export default function SignupPage() {
       }
 
       setTimeout(() => {
-        navigate('/caregiver');
+        navigate('/');
       }, 1200);
+
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to create account. Please check your details.');
     } finally {

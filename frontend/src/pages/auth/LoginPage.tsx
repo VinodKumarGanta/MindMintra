@@ -50,13 +50,14 @@ export default function LoginPage() {
         localStorage.setItem('mindmitra_caregiver_user', JSON.stringify(res.user));
       }
 
-      // Redirect to ?next= page or default to caregiver dashboard
+      // Redirect to ?next= page or default to Home Landing page
       const params = new URLSearchParams(location.search);
-      const nextPage = params.get('next') || '/caregiver';
+      const nextPage = params.get('next') || '/';
 
       setTimeout(() => {
         navigate(nextPage);
       }, 1000);
+
 
     } catch (err: any) {
       setErrorMessage(err.message || 'Invalid Username (Email ID) or password. Please verify your credentials.');
