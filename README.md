@@ -99,6 +99,62 @@ Navigate to http://localhost:3000
 
 ---
 
+## Quantum Research Module (Experimental)
+
+> ⚠️ **Fully isolated from the production adaptive engine.** These endpoints demonstrate quantum algorithm concepts alongside MindMitra as exploratory research — they do NOT modify, replace, or influence the RandomForest adaptive difficulty pipeline or any analytics baseline logic.
+
+### What This Module Demonstrates
+
+MindMitra includes a self-contained **Quantum Research Module** (`backend/quantum/`) that implements two canonical quantum algorithms using open-source simulators:
+
+#### 1. Grover's Algorithm — Difficulty Level Search
+**Endpoint:** `GET /quantum/grover-difficulty-search?target_accuracy=0.75`
+
+Demonstrates Grover's unstructured search algorithm to find the difficulty level (from 1–4) whose predicted user accuracy is closest to a given target. The algorithm constructs:
+- A **Phase-Kickback Oracle** that marks the target state
+- A **Grover Diffuser** (inversion-about-average operator)
+- Runs `⌈π/4 · √N⌉` oracle-diffuser iterations on 2 qubits
+
+**Honest Limitation:** The circuit runs on Qiskit's **AerSimulator** (classical statevector simulation). Grover's O(√N) speedup over classical O(N) is only achievable on *physical quantum hardware*. On a classical simulator, it is strictly slower than a direct lookup.
+
+#### 2. QUBO Annealing — Multi-Game Schedule Optimizer
+**Endpoint:** `GET /quantum/annealing-schedule-optimizer?alpha=0.6&beta=0.4`
+
+Formulates a **Quadratic Unconstrained Binary Optimization (QUBO)** problem:
+- 4 games × 4 difficulty levels = **16 binary decision variables**
+- Competing cost terms: `α · (1 − engagement) + β · frustration + γ · one_hot_penalty`
+- Solved by **dimod's SimulatedAnnealingSampler** (classical CPU)
+
+The QUBO formulation is mathematically equivalent to what would be submitted to a **D-Wave quantum annealer** — demonstrating how real quantum annealing hardware would approach combinatorial cognitive-scheduling optimization.
+
+**Honest Limitation:** Uses classical simulated annealing, not a D-Wave machine. Real quantum annealing exploits quantum tunneling to escape local optima — a property unavailable in classical simulation.
+
+### Running the Quantum Module
+
+No additional setup needed. The module starts automatically with the backend:
+```bash
+cd backend
+uvicorn main:app --reload --port 8000
+# Then visit: http://localhost:8000/quantum/info
+```
+
+| Endpoint | Description |
+|---|---|
+| `GET /quantum/info` | Module overview, disclaimers, limitations |
+| `GET /quantum/grover-difficulty-search` | Grover's algorithm demo |
+| `GET /quantum/annealing-schedule-optimizer` | QUBO annealing demo |
+| Full docs | `http://localhost:8000/docs#/Quantum Research Module (Experimental)` |
+
+### Dependencies
+```
+qiskit          # Quantum circuit construction
+qiskit-aer      # AerSimulator classical backend
+dimod           # QUBO/BQM formulation & SimulatedAnnealingSampler
+```
+
+---
+
+
 ## Datasets
 
 ### Primary: MindMitra Gameplay Dataset

@@ -25,6 +25,14 @@ try:
 except Exception as e:
     ML_AVAILABLE = False
 
+# --- QUANTUM RESEARCH MODULE (Experimental — isolated from production pipeline) ---
+try:
+    from quantum.router import router as quantum_router
+    QUANTUM_AVAILABLE = True
+except Exception as _qe:
+    quantum_router = None
+    QUANTUM_AVAILABLE = False
+
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -39,6 +47,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount quantum research router (experimental — does not affect production routes)
+if QUANTUM_AVAILABLE and quantum_router:
+    app.include_router(quantum_router)
 
 # --- DB SETUP ---
 

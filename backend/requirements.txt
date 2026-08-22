@@ -7,3 +7,9 @@ numpy
 scikit-learn
 joblib
 pydantic
+
+# --- Quantum Research Module (Experimental) ---
+# Simulated quantum computing — no real hardware required
+qiskit
+qiskit-aer
+dimod
