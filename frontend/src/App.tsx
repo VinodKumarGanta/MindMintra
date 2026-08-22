@@ -5,8 +5,8 @@ import { useTranslation } from './i18n';
 import { Home, Activity, Brain, WifiOff, Sparkles, Users, Play } from 'lucide-react';
 
 import SpaceBackground from './components/SpaceBackground';
-import CustomCursor from './components/CustomCursor';
 import TTSDebugPanel from './components/TTSDebugPanel';
+
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const Welcome = lazy(() => import('./pages/Welcome'));
@@ -54,10 +54,8 @@ function AppContent() {
       {/* Background space/cognitive exploration environment */}
       <SpaceBackground />
 
-      {/* Interactive custom celestial pointer on desktop */}
-      <CustomCursor />
-
       {/* Offline Status */}
+
       <OfflineBanner />
 
       {/* Main Page Routing */}
