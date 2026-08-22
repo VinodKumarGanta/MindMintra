@@ -89,67 +89,73 @@ function AppContent() {
 
       {/* Bottom Nav: Displayed on high-level pages, hidden during game sessions & auth */}
       {!isGameRoute && !isAuthRoute && (
-        <nav className="bg-slate-950/80 backdrop-blur-xl border-t border-indigo-500/20 py-2.5 px-4 sticky bottom-0 z-40 shadow-[0_-4px_25px_rgba(0,0,0,0.5)]">
-          <div className="max-w-3xl mx-auto flex justify-around">
+        <nav className="bg-slate-950/90 backdrop-blur-xl border-t border-indigo-500/20 py-1.5 sm:py-2.5 px-1 sm:px-4 sticky bottom-0 z-40 shadow-[0_-4px_25px_rgba(0,0,0,0.5)]">
+          <div className="max-w-4xl mx-auto flex items-center justify-between sm:justify-around gap-0.5 sm:gap-2">
             <Link
               to="/"
-              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center p-1 sm:p-2 rounded-xl transition-all ${
                 location.pathname === '/' ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Home size={22} />
-              <span className="text-xs mt-1 font-medium">Home</span>
+              <Home size={20} className="sm:hidden" />
+              <Home size={22} className="hidden sm:block" />
+              <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-medium">Home</span>
             </Link>
 
             <Link
               to="/welcome"
-              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center p-1 sm:p-2 rounded-xl transition-all ${
                 location.pathname === '/welcome' || location.pathname === '/onboarding' || location.pathname.startsWith('/session') || location.pathname.startsWith('/games')
                   ? 'text-indigo-300 font-bold'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Play size={22} className="text-emerald-400" />
-              <span className="text-xs mt-1 font-semibold text-emerald-300">Cognitive Session</span>
+              <Play size={20} className="text-emerald-400 sm:hidden" />
+              <Play size={22} className="text-emerald-400 hidden sm:block" />
+              <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-semibold text-emerald-300">Activities</span>
             </Link>
 
             <Link
               to="/caregiver"
-              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center p-1 sm:p-2 rounded-xl transition-all ${
                 location.pathname.startsWith('/caregiver') ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Activity size={22} />
-              <span className="text-xs mt-1 font-medium">Caregiver</span>
+              <Activity size={20} className="sm:hidden" />
+              <Activity size={22} className="hidden sm:block" />
+              <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-medium">Caregiver</span>
             </Link>
 
             <Link
               to="/methodology"
-              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center p-1 sm:p-2 rounded-xl transition-all ${
                 location.pathname === '/methodology' ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Brain size={22} />
-              <span className="text-xs mt-1 font-medium">Methodology</span>
+              <Brain size={20} className="sm:hidden" />
+              <Brain size={22} className="hidden sm:block" />
+              <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-medium">Science</span>
             </Link>
 
             <Link
               to="/demo"
-              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center p-1 sm:p-2 rounded-xl transition-all ${
                 location.pathname === '/demo' ? 'text-purple-300' : 'text-slate-400 hover:text-purple-200'
               }`}
             >
-              <Sparkles size={22} />
-              <span className="text-xs mt-1 font-medium">Demo</span>
+              <Sparkles size={20} className="sm:hidden" />
+              <Sparkles size={22} className="hidden sm:block" />
+              <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-medium">Demo</span>
             </Link>
 
-            <div className="flex flex-col items-center justify-center p-1">
+            <div className="flex flex-col items-center justify-center p-0.5 sm:p-1">
               <ThemeSelector compact />
-              <span className="text-[10px] text-slate-400 mt-0.5">Theme</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5">Theme</span>
             </div>
           </div>
         </nav>
       )}
+
 
 
     </div>

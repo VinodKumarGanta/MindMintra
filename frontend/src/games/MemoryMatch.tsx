@@ -220,12 +220,12 @@ export default function MemoryMatch({ difficulty, userId, gameSessionId, onCompl
 
       {/* Card Grid */}
       <div
-        className={`grid gap-4 w-full max-w-3xl justify-center ${
+        className={`grid gap-2.5 sm:gap-4 w-full max-w-3xl justify-center ${
           pairCount <= 4
             ? 'grid-cols-3 sm:grid-cols-3'
             : pairCount <= 6
-            ? 'grid-cols-4 sm:grid-cols-4'
-            : 'grid-cols-4 sm:grid-cols-6'
+            ? 'grid-cols-3 sm:grid-cols-4'
+            : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6'
         }`}
       >
         {cards.map((card, idx) => (
@@ -235,7 +235,7 @@ export default function MemoryMatch({ difficulty, userId, gameSessionId, onCompl
             disabled={card.isFlipped || card.isMatched || isLocked}
             whileHover={!card.isFlipped && !card.isMatched ? { scale: 1.04 } : {}}
             whileTap={!card.isFlipped && !card.isMatched ? { scale: 0.96 } : {}}
-            className={`h-28 sm:h-32 w-full rounded-2xl flex items-center justify-center text-4xl sm:text-5xl transition-all duration-300 shadow-lg ${
+            className={`h-20 sm:h-28 md:h-32 w-full rounded-2xl flex items-center justify-center text-3xl sm:text-4xl md:text-5xl transition-all duration-300 shadow-lg ${
               card.isMatched
                 ? 'bg-emerald-950/80 border-2 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]'
                 : card.isFlipped
@@ -243,6 +243,7 @@ export default function MemoryMatch({ difficulty, userId, gameSessionId, onCompl
                 : 'bg-slate-900/90 border-2 border-indigo-500/30 hover:border-indigo-400/80 text-transparent cursor-pointer'
             }`}
           >
+
             {card.isFlipped || card.isMatched ? (
               <motion.span
                 initial={{ scale: 0, rotate: -20 }}

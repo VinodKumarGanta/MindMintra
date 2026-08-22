@@ -30,48 +30,55 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen text-slate-100 relative overflow-hidden selection:bg-indigo-500 selection:text-white">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-indigo-500/20 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-              <BrainCircuit size={24} />
+      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-indigo-500/20 px-3 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" onClick={() => navigate('/')}>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+              <BrainCircuit size={20} className="sm:hidden" />
+              <BrainCircuit size={24} className="hidden sm:block" />
             </div>
             <div>
-              <span className="text-2xl font-black text-white tracking-tight">MindMitra</span>
-              <span className="text-xs text-indigo-300 font-semibold block -mt-1">Cognitive Companion</span>
+              <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none block">MindMitra</span>
+              <span className="text-[10px] sm:text-xs text-indigo-300 font-semibold block mt-0.5">Cognitive Companion</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <Link
               to="/methodology"
-              className="hidden md:inline-flex text-sm font-medium text-slate-300 hover:text-white px-4 py-2 transition-colors"
+              className="hidden lg:inline-flex text-sm font-medium text-slate-300 hover:text-white px-3 py-2 transition-colors"
             >
               Methodology
             </Link>
             <Link
               to="/demo"
-              className="hidden md:inline-flex text-sm font-medium text-purple-300 hover:text-purple-200 px-4 py-2 transition-colors"
+              className="hidden lg:inline-flex text-sm font-medium text-purple-300 hover:text-purple-200 px-3 py-2 transition-colors"
             >
               Live Demo
             </Link>
             <Link
               to="/auth/login"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-300 hover:text-white px-4 py-2 bg-slate-900/80 border border-indigo-500/30 hover:border-indigo-400 rounded-xl transition-all"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-300 hover:text-white px-3 py-2 bg-slate-900/80 border border-indigo-500/30 hover:border-indigo-400 rounded-xl transition-all whitespace-nowrap"
             >
-              <LogIn size={16} />
-              Caretaker Login
+              <LogIn size={15} />
+              <span className="hidden xs:inline">Caretaker</span> Login
             </Link>
             <Link
               to="/auth/signup"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl shadow-lg shadow-indigo-600/30 transition-all"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-white px-3.5 py-2 sm:px-5 sm:py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl shadow-lg shadow-indigo-600/30 transition-all whitespace-nowrap"
             >
               Get Started
             </Link>
-            <ThemeSelector />
+            <div className="hidden sm:block">
+              <ThemeSelector />
+            </div>
+            <div className="sm:hidden">
+              <ThemeSelector compact />
+            </div>
           </div>
         </div>
       </header>
+
 
 
       {/* 1. HERO SECTION */}

@@ -221,16 +221,17 @@ export default function PatternRecall({ difficulty, userId, gameSessionId, onCom
             </div>
 
             {/* Pattern Display */}
-            <div className="flex items-center gap-4 bg-slate-900/90 border-2 border-indigo-400 p-6 sm:p-8 rounded-3xl shadow-[0_0_30px_rgba(99,102,241,0.3)] mb-8">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 bg-slate-900/90 border-2 border-indigo-400 p-4 sm:p-8 rounded-3xl shadow-[0_0_30px_rgba(99,102,241,0.3)] mb-8">
               {currentRound.pattern.map((sym, sIdx) => (
                 <span
                   key={sIdx}
-                  className="text-5xl sm:text-6xl text-indigo-200 font-bold drop-shadow-[0_0_10px_rgba(129,140,248,0.8)]"
+                  className="text-4xl sm:text-6xl text-indigo-200 font-bold drop-shadow-[0_0_10px_rgba(129,140,248,0.8)]"
                 >
                   {sym}
                 </span>
               ))}
             </div>
+
 
             <button
               onClick={startRecall}
