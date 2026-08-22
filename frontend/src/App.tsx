@@ -2,7 +2,8 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { useTranslation } from './i18n';
-import { Home, Activity, Brain, WifiOff, Sparkles, Users } from 'lucide-react';
+import { Home, Activity, Brain, WifiOff, Sparkles, Users, Play } from 'lucide-react';
+
 import SpaceBackground from './components/SpaceBackground';
 import CustomCursor from './components/CustomCursor';
 import TTSDebugPanel from './components/TTSDebugPanel';
@@ -98,8 +99,20 @@ function AppContent() {
                 location.pathname === '/' ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Home size={24} />
+              <Home size={22} />
               <span className="text-xs mt-1 font-medium">Home</span>
+            </Link>
+
+            <Link
+              to="/welcome"
+              className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+                location.pathname === '/welcome' || location.pathname === '/onboarding' || location.pathname.startsWith('/session') || location.pathname.startsWith('/games')
+                  ? 'text-indigo-300 font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Play size={22} className="text-emerald-400" />
+              <span className="text-xs mt-1 font-semibold text-emerald-300">Cognitive Session</span>
             </Link>
 
             <Link
@@ -108,7 +121,7 @@ function AppContent() {
                 location.pathname.startsWith('/caregiver') ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Activity size={24} />
+              <Activity size={22} />
               <span className="text-xs mt-1 font-medium">Caregiver</span>
             </Link>
 
@@ -118,7 +131,7 @@ function AppContent() {
                 location.pathname === '/methodology' ? 'text-indigo-300' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Brain size={24} />
+              <Brain size={22} />
               <span className="text-xs mt-1 font-medium">Methodology</span>
             </Link>
 
@@ -128,9 +141,10 @@ function AppContent() {
                 location.pathname === '/demo' ? 'text-purple-300' : 'text-slate-400 hover:text-purple-200'
               }`}
             >
-              <Sparkles size={24} />
+              <Sparkles size={22} />
               <span className="text-xs mt-1 font-medium">Demo</span>
             </Link>
+
           </div>
         </nav>
       )}

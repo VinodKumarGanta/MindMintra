@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingDown, TrendingUp, Minus, AlertCircle, ArrowLeft, Users, Sparkles, Heart, Clock, ShieldCheck, Activity, ChevronRight, UserCheck, HelpCircle, Info } from 'lucide-react';
+import { TrendingDown, TrendingUp, Minus, AlertCircle, ArrowLeft, Users, Sparkles, Heart, Clock, ShieldCheck, Activity, ChevronRight, UserCheck, HelpCircle, Info, Play, Brain } from 'lucide-react';
 import { api } from '../services/api';
+import { useAppContext } from '../context/AppContext';
 import { User, TrendData, GameSession, CognitiveDomain, FamiliarPerson } from '../types';
+
 
 const TREND_CONFIG: Record<string, { color: string; bg: string; border: string; icon: any; label: string }> = {
   stable: { color: 'text-indigo-200', bg: 'bg-indigo-950/40', border: 'border-indigo-500/30', icon: Minus, label: 'Stable' },
@@ -22,12 +24,14 @@ const DOMAIN_INFO: Record<string, { label: string; icon: string; desc: string }>
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { setCurrentUser } = useAppContext();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [trends, setTrends] = useState<TrendData[]>([]);
   const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
   const [familiarPeople, setFamiliarPeople] = useState<FamiliarPerson[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     async function init() {
@@ -147,7 +151,49 @@ export default function Dashboard() {
           <Link to="/caregiver/reminders" className="text-lg font-medium text-slate-400 hover:text-white px-4 pb-2 whitespace-nowrap">
             Reminders & Schedule
           </Link>
+          <Link to="/welcome" className="text-lg font-medium text-emerald-400 hover:text-emerald-300 px-4 pb-2 whitespace-nowrap flex items-center gap-1.5 ml-auto">
+            <Play size={18} />
+            <span>Play Cognitive Session</span>
+          </Link>
         </div>
+
+        {/* Quick Launch Cognitive Session Card */}
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border border-indigo-500/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-600/30 border border-indigo-400/40 flex items-center justify-center text-indigo-300 shrink-0 shadow-lg">
+              <Brain size={30} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
+                  Active Session Ready
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mt-0.5">
+                Start Cognitive Activities for {selectedUser?.display_name || 'Senior'}
+              </h3>
+              <p className="text-xs text-indigo-200 mt-0.5">
+                Play Memory Match, Daily Routine, and Pattern Recall games with voice guidance in English, Hindi & Telugu.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (selectedUser) {
+                setCurrentUser(selectedUser);
+                navigate('/session');
+              } else {
+                navigate('/welcome');
+              }
+            }}
+            className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-base font-bold rounded-xl shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-2.5 whitespace-nowrap"
+          >
+            <Play size={20} className="fill-white" />
+            <span>Launch Cognitive Session →</span>
+          </button>
+        </div>
+
 
         {/* User Card with Honest Demo Labeling */}
         {selectedUser && (

@@ -108,23 +108,32 @@ export default function LandingPage() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
-          {/* Start Activity Session — requires caregiver login first */}
+          {/* Start Cognitive Session */}
+          <button
+            onClick={() => navigate('/welcome')}
+            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white text-lg font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-3"
+          >
+            <span>🎮 Start Cognitive Session</span>
+            <ArrowRight size={20} />
+          </button>
+
+          {/* Caregiver Dashboard */}
           <button
             onClick={() => {
               const token = localStorage.getItem('mindmitra_caregiver_token');
               if (token) {
-                navigate('/onboarding');
+                navigate('/caregiver');
               } else {
-                // Redirect to login; after login the caregiver will be sent to /onboarding
-                navigate('/auth/login?next=/onboarding');
+                navigate('/auth/login?next=/caregiver');
               }
             }}
-            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white text-lg font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-3"
+            className="w-full sm:w-auto px-8 py-4 bg-slate-900/90 border border-indigo-500/40 hover:border-indigo-400 text-indigo-200 hover:text-white text-lg font-bold rounded-2xl transition-all flex items-center justify-center gap-3"
           >
-            <span>Start Activity Session</span>
-            <ArrowRight size={20} />
+            <Activity size={20} />
+            <span>Caregiver Dashboard</span>
           </button>
         </motion.div>
+
 
 
         {/* Hero Visual Card */}
