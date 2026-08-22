@@ -24,7 +24,11 @@ export default function FamiliarPeople() {
   useEffect(() => {
     async function init() {
       try {
-        const u = await api.getUsers();
+        let u = await api.getUsers();
+        if (u.length === 0) {
+          await api.seedFullDemo();
+          u = await api.getUsers();
+        }
         // Deduplicate users by display_name
         const unique = Array.from(new Map(u.map(item => [item.display_name, item])).values());
         setUsers(unique);
@@ -33,6 +37,7 @@ export default function FamiliarPeople() {
     }
     init();
   }, []);
+
 
   useEffect(() => {
     if (!selectedUserId) return;

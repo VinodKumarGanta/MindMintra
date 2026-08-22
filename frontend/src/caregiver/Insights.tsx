@@ -39,7 +39,11 @@ export default function Insights() {
   useEffect(() => {
     async function init() {
       try {
-        const allUsers = await api.getUsers();
+        let allUsers = await api.getUsers();
+        if (allUsers.length === 0) {
+          await api.seedFullDemo();
+          allUsers = await api.getUsers();
+        }
         const unique = Array.from(new Map(allUsers.map(item => [item.display_name, item])).values());
         setUsers(unique);
         if (unique.length > 0) setSelectedUserId(unique[0].id);
@@ -47,6 +51,7 @@ export default function Insights() {
     }
     init();
   }, []);
+
 
   useEffect(() => {
     if (!selectedUserId) return;

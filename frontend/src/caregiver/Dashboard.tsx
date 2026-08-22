@@ -32,7 +32,11 @@ export default function Dashboard() {
   useEffect(() => {
     async function init() {
       try {
-        const allUsers = await api.getUsers();
+        let allUsers = await api.getUsers();
+        if (allUsers.length === 0) {
+          await api.seedFullDemo();
+          allUsers = await api.getUsers();
+        }
         // Deduplicate user list by display_name
         const unique = Array.from(new Map(allUsers.map(item => [item.display_name, item])).values());
         setUsers(unique);
@@ -45,6 +49,7 @@ export default function Dashboard() {
     }
     init();
   }, []);
+
 
   useEffect(() => {
     if (!selectedUserId) return;
