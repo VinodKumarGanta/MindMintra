@@ -143,6 +143,13 @@ export const api = {
     const res = await fetch(`/quantum/annealing-schedule-optimizer?alpha=${alpha}&beta=${beta}`);
     return res.json();
   },
+
+  // Caregiver Authentication
+  signupCaregiver: (data: any) => fetchJSON<any>('/auth/signup', { method: 'POST', body: JSON.stringify(data) }),
+  loginCaregiver: (data: any) => fetchJSON<any>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  forgotPassword: (data: { email: string }) => fetchJSON<any>('/auth/forgot-password', { method: 'POST', body: JSON.stringify(data) }),
+  verifyOTP: (data: { email: string; otp_code: string }) => fetchJSON<any>('/auth/verify-otp', { method: 'POST', body: JSON.stringify(data) }),
+  resetPassword: (data: any) => fetchJSON<any>('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 // Named exports for convenience (import * as api)
@@ -181,4 +188,10 @@ export const seedFullDemo = api.seedFullDemo;
 export const getQuantumInfo = api.getQuantumInfo;
 export const getQuantumGroverSearch = api.getQuantumGroverSearch;
 export const getQuantumAnnealingOptimizer = api.getQuantumAnnealingOptimizer;
+export const signupCaregiver = api.signupCaregiver;
+export const loginCaregiver = api.loginCaregiver;
+export const forgotPassword = api.forgotPassword;
+export const verifyOTP = api.verifyOTP;
+export const resetPassword = api.resetPassword;
+
 

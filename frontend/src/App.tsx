@@ -7,6 +7,7 @@ import SpaceBackground from './components/SpaceBackground';
 import CustomCursor from './components/CustomCursor';
 import TTSDebugPanel from './components/TTSDebugPanel';
 
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const Welcome = lazy(() => import('./pages/Welcome'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Session = lazy(() => import('./pages/Session'));
@@ -19,6 +20,10 @@ const CaregiverFamiliarPeople = lazy(() => import('./caregiver/FamiliarPeople'))
 const CaregiverReminders = lazy(() => import('./caregiver/Reminders'));
 const Methodology = lazy(() => import('./pages/Methodology'));
 const Demo = lazy(() => import('./pages/Demo'));
+
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const SignupPage = lazy(() => import('./pages/auth/SignupPage'));
+const ForgotPasswordFlow = lazy(() => import('./pages/auth/ForgotPasswordFlow'));
 
 const OfflineBanner = () => {
   const { isOnline } = useAppContext();
@@ -40,8 +45,8 @@ const LoadingScreen = () => (
 
 function AppContent() {
   const location = useLocation();
-  // Section 34: Hide full navigation during active elderly cognitive activities
   const isGameRoute = location.pathname.startsWith('/games/');
+  const isAuthRoute = location.pathname.startsWith('/auth');
 
   return (
     <div className="min-h-screen flex flex-col relative text-slate-100 selection:bg-indigo-500 selection:text-white">
@@ -58,7 +63,8 @@ function AppContent() {
       <main className="flex-grow flex flex-col relative z-10">
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path="/" element={<Welcome />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/welcome" element={<Welcome />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/session" element={<Session />} />
             <Route path="/games/:gameType" element={<GamePage />} />
@@ -70,6 +76,11 @@ function AppContent() {
             <Route path="/caregiver/reminders" element={<CaregiverReminders />} />
             <Route path="/methodology" element={<Methodology />} />
             <Route path="/demo" element={<Demo />} />
+
+            {/* Caregiver Authentication Flow */}
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/signup" element={<SignupPage />} />
+            <Route path="/auth/forgot-password" element={<ForgotPasswordFlow />} />
           </Routes>
         </Suspense>
       </main>
@@ -77,8 +88,8 @@ function AppContent() {
       {/* Multilingual TTS Debugger & Voice Inspector Panel */}
       <TTSDebugPanel />
 
-      {/* Bottom Nav: Only displayed on high-level pages, hidden during game sessions */}
-      {!isGameRoute && (
+      {/* Bottom Nav: Displayed on high-level pages, hidden during game sessions & auth */}
+      {!isGameRoute && !isAuthRoute && (
         <nav className="bg-slate-950/80 backdrop-blur-xl border-t border-indigo-500/20 py-2.5 px-4 sticky bottom-0 z-40 shadow-[0_-4px_25px_rgba(0,0,0,0.5)]">
           <div className="max-w-3xl mx-auto flex justify-around">
             <Link
@@ -123,6 +134,7 @@ function AppContent() {
           </div>
         </nav>
       )}
+
     </div>
   );
 }

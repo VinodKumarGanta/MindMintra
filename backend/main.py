@@ -6,7 +6,31 @@ import random
 import datetime
 import base64
 import urllib.parse
+import hashlib
+import hmac
+import secrets
+import re
 from typing import List, Optional, Dict, Any
+
+def hash_password(password: str, salt: Optional[str] = None) -> str:
+    if not salt:
+        salt = secrets.token_hex(16)
+    key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000)
+    return f"{salt}${key.hex()}"
+
+def verify_password(password: str, hashed: str) -> bool:
+    try:
+        salt, key_hex = hashed.split('$', 1)
+        expected_key = bytes.fromhex(key_hex)
+        actual_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000)
+        return hmac.compare_digest(expected_key, actual_key)
+    except Exception:
+        return False
+
+def validate_email_format(email: str) -> bool:
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return bool(re.match(pattern, email.strip()))
+
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -158,6 +182,26 @@ def init_db():
                 synced_at TIMESTAMP
             )
         """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS caregivers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                full_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP
+            )
+        """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS otp_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                otp_code TEXT NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                used BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP
+            )
+        """)
+
         
         # Clean up any duplicate users in database, keeping the primary instance per display_name
         c.execute("""
@@ -250,7 +294,180 @@ class TTSRequest(BaseModel):
     text: str
     language: str = "te-IN"
 
+class CaregiverSignupRequest(BaseModel):
+    full_name: str
+    email: str
+    password: str
+    confirm_password: str
+
+class CaregiverLoginRequest(BaseModel):
+    email: str
+    password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class VerifyOTPRequest(BaseModel):
+    email: str
+    otp_code: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp_code: str
+    new_password: str
+    confirm_password: str
+
+# --- ENDPOINTS: CAREGIVER AUTHENTICATION ---
+
+@app.post("/api/auth/signup")
+def caregiver_signup(req: CaregiverSignupRequest):
+    email = req.email.strip().lower()
+    full_name = req.full_name.strip()
+    
+    if not validate_email_format(email):
+        raise HTTPException(status_code=400, detail="Invalid email address format.")
+    if len(req.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long.")
+    if req.password != req.confirm_password:
+        raise HTTPException(status_code=400, detail="Password confirmation does not match.")
+        
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute("SELECT id FROM caregivers WHERE email = ?", (email,))
+        if c.fetchone():
+            raise HTTPException(status_code=400, detail="An account with this email address already exists.")
+            
+        hashed = hash_password(req.password)
+        now_str = datetime.datetime.now().isoformat()
+        c.execute("INSERT INTO caregivers (full_name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                  (full_name, email, hashed, now_str))
+        conn.commit()
+        caregiver_id = c.lastrowid
+
+    token = f"cg_token_{caregiver_id}_{secrets.token_hex(12)}"
+    return {
+        "status": "success",
+        "message": "Caregiver account created successfully.",
+        "token": token,
+        "user": {
+            "id": caregiver_id,
+            "full_name": full_name,
+            "email": email
+        }
+    }
+
+@app.post("/api/auth/login")
+def caregiver_login(req: CaregiverLoginRequest):
+    email = req.email.strip().lower()
+    if not validate_email_format(email):
+        raise HTTPException(status_code=400, detail="Invalid email address format.")
+        
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM caregivers WHERE email = ?", (email,))
+        row = c.fetchone()
+        if not row or not verify_password(req.password, row["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+            
+        caregiver_id = row["id"]
+        full_name = row["full_name"]
+
+    token = f"cg_token_{caregiver_id}_{secrets.token_hex(12)}"
+    return {
+        "status": "success",
+        "message": "Logged in successfully.",
+        "token": token,
+        "user": {
+            "id": caregiver_id,
+            "full_name": full_name,
+            "email": email
+        }
+    }
+
+@app.post("/api/auth/forgot-password")
+def caregiver_forgot_password(req: ForgotPasswordRequest):
+    email = req.email.strip().lower()
+    if not validate_email_format(email):
+        raise HTTPException(status_code=400, detail="Invalid email address format.")
+        
+    otp_code = f"{random.randint(100000, 999999)}"
+    expires_at = (datetime.datetime.now() + datetime.timedelta(minutes=10)).isoformat()
+    now_str = datetime.datetime.now().isoformat()
+    
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute("INSERT INTO otp_tokens (email, otp_code, expires_at, used, created_at) VALUES (?, ?, ?, 0, ?)",
+                  (email, otp_code, expires_at, now_str))
+        conn.commit()
+
+    return {
+        "status": "success",
+        "message": "If an account with this email exists, a 6-digit OTP code has been generated.",
+        "demo_otp_code": otp_code
+    }
+
+@app.post("/api/auth/verify-otp")
+def caregiver_verify_otp(req: VerifyOTPRequest):
+    email = req.email.strip().lower()
+    otp_code = req.otp_code.strip()
+    
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute("""
+            SELECT * FROM otp_tokens 
+            WHERE email = ? AND otp_code = ? AND used = 0 
+            ORDER BY id DESC LIMIT 1
+        """, (email, otp_code))
+        row = c.fetchone()
+        
+        if not row:
+            raise HTTPException(status_code=400, detail="Invalid OTP verification code.")
+            
+        expires_at = datetime.datetime.fromisoformat(row["expires_at"])
+        if datetime.datetime.now() > expires_at:
+            raise HTTPException(status_code=400, detail="OTP code has expired. Please request a new code.")
+
+    return {"status": "success", "message": "OTP verified successfully."}
+
+@app.post("/api/auth/reset-password")
+def caregiver_reset_password(req: ResetPasswordRequest):
+    email = req.email.strip().lower()
+    otp_code = req.otp_code.strip()
+    
+    if len(req.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters long.")
+    if req.new_password != req.confirm_password:
+        raise HTTPException(status_code=400, detail="Password confirmation does not match.")
+        
+    with get_db() as conn:
+        c = conn.cursor()
+        c.execute("""
+            SELECT * FROM otp_tokens 
+            WHERE email = ? AND otp_code = ? AND used = 0 
+            ORDER BY id DESC LIMIT 1
+        """, (email, otp_code))
+        row = c.fetchone()
+        if not row:
+            raise HTTPException(status_code=400, detail="Invalid or expired OTP code.")
+            
+        expires_at = datetime.datetime.fromisoformat(row["expires_at"])
+        if datetime.datetime.now() > expires_at:
+            raise HTTPException(status_code=400, detail="OTP code has expired.")
+
+        c.execute("SELECT id FROM caregivers WHERE email = ?", (email,))
+        caregiver = c.fetchone()
+        if not caregiver:
+            raise HTTPException(status_code=404, detail="Caregiver account not found.")
+
+        new_hash = hash_password(req.new_password)
+        c.execute("UPDATE caregivers SET password_hash = ? WHERE email = ?", (new_hash, email))
+        c.execute("UPDATE otp_tokens SET used = 1 WHERE id = ?", (row["id"],))
+        conn.commit()
+
+    return {"status": "success", "message": "Password reset successfully. You can now log in with your new password."}
+
 # --- ENDPOINTS: USERS (WITH DEDUPLICATION) ---
+
 
 @app.get("/api/users")
 def list_users():
