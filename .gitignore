@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build output
+dist/
+frontend/dist/
+build/
+
+# Python / Cache
+__pycache__/
+*.pyc
+backend/__pycache__/
+ml/__pycache__/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Database & Local Env
+*.db
+backend/*.db
+.env.local
+.env.development.local
+.env.test.local
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
