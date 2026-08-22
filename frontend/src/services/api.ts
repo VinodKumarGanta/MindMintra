@@ -9,7 +9,7 @@ async function fetchJSON<T>(url: string, options: RequestInit = {}, cacheKey?: s
       const cached = getFromCache(cacheKey);
       if (cached) return cached as T;
     }
-    throw new Error('Offline and no cache available');
+    throw new Error('You are offline. Please check your internet connection.');
   }
 
   try {
@@ -17,24 +17,33 @@ async function fetchJSON<T>(url: string, options: RequestInit = {}, cacheKey?: s
       headers: { 'Content-Type': 'application/json' },
       ...options,
     });
+
     if (!response.ok) {
-      // Extract the actual error detail from the JSON response body
+      // Read the body as text first to avoid "Unexpected end of JSON" errors
+      let errorMessage = `Request failed (${response.status})`;
       try {
-        const errBody = await response.json();
-        const detail = errBody?.detail || errBody?.message || response.statusText;
-        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
-      } catch (parseErr: any) {
-        // If we already threw above, re-throw it; otherwise fall back to status text
-        if (parseErr.message && parseErr.message !== 'Unexpected end of JSON input') {
-          throw parseErr;
+        const text = await response.text();
+        if (text) {
+          const errBody = JSON.parse(text);
+          const detail = errBody?.detail || errBody?.message;
+          if (detail) {
+            errorMessage = typeof detail === 'string' ? detail : JSON.stringify(detail);
+          }
         }
-        throw new Error(response.statusText);
+      } catch {
+        // Ignore parse errors — use the default error message above
       }
+      throw new Error(errorMessage);
     }
+
     const data = await response.json();
     if (cacheKey) saveToCache(cacheKey, data);
     return data;
-  } catch (err) {
+  } catch (err: any) {
+    // If it's a network error (backend not running), give a clear message
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      throw new Error('Cannot connect to server. Make sure the backend is running.');
+    }
     if (cacheKey) {
       const cached = getFromCache(cacheKey);
       if (cached) return cached as T;

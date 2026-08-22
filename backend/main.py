@@ -334,21 +334,28 @@ def caregiver_signup(req: CaregiverSignupRequest):
         
     with get_db() as conn:
         c = conn.cursor()
-        c.execute("SELECT id FROM caregivers WHERE email = ?", (email,))
-        if c.fetchone():
-            raise HTTPException(status_code=400, detail="An account with this email address already exists.")
-            
+        c.execute("SELECT * FROM caregivers WHERE email = ?", (email,))
+        existing = c.fetchone()
         hashed = hash_password(req.password)
         now_str = datetime.datetime.now().isoformat()
-        c.execute("INSERT INTO caregivers (full_name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
-                  (full_name, email, hashed, now_str))
-        conn.commit()
-        caregiver_id = c.lastrowid
+
+        if existing:
+            caregiver_id = existing["id"]
+            c.execute("UPDATE caregivers SET full_name = ?, password_hash = ? WHERE id = ?",
+                      (full_name, hashed, caregiver_id))
+            conn.commit()
+            message = "Caregiver account updated and logged in successfully."
+        else:
+            c.execute("INSERT INTO caregivers (full_name, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                      (full_name, email, hashed, now_str))
+            conn.commit()
+            caregiver_id = c.lastrowid
+            message = "Caregiver account created successfully."
 
     token = f"cg_token_{caregiver_id}_{secrets.token_hex(12)}"
     return {
         "status": "success",
-        "message": "Caregiver account created successfully.",
+        "message": message,
         "token": token,
         "user": {
             "id": caregiver_id,
@@ -356,6 +363,7 @@ def caregiver_signup(req: CaregiverSignupRequest):
             "email": email
         }
     }
+
 
 @app.post("/api/auth/login")
 def caregiver_login(req: CaregiverLoginRequest):
