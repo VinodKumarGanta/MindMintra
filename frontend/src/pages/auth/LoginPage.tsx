@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BrainCircuit, User, Lock, LogIn, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
+import { BrainCircuit, User, Mail, Lock, LogIn, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAppContext } from '../../context/AppContext';
 
@@ -10,8 +10,8 @@ export default function LoginPage() {
   const location = useLocation();
   const { setCurrentUser } = useAppContext();
 
-
-  const [usernameEmail, setUsernameEmail] = useState('');
+  const [caretakerName, setCaretakerName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -26,13 +26,13 @@ export default function LoginPage() {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const cleanUsername = usernameEmail.trim();
-    if (!cleanUsername) {
-      setErrorMessage('Please enter your Username (Email ID).');
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setErrorMessage('Please enter your Email ID.');
       return;
     }
-    if (!validateEmail(cleanUsername)) {
-      setErrorMessage('Please enter a valid Username / Email (e.g. caretaker@example.com).');
+    if (!validateEmail(cleanEmail)) {
+      setErrorMessage('Please enter a valid Email ID (e.g. caretaker@example.com).');
       return;
     }
     if (!password) {
@@ -42,12 +42,15 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await api.loginCaregiver({ email: cleanUsername, password });
+      const res = await api.loginCaregiver({ email: cleanEmail, password });
       setSuccessMessage('Login successful! Redirecting...');
       
       if (res.user) {
         localStorage.setItem('mindmitra_caregiver_token', res.token || 'demo_token');
-        localStorage.setItem('mindmitra_caregiver_user', JSON.stringify(res.user));
+        localStorage.setItem('mindmitra_caregiver_user', JSON.stringify({
+          ...res.user,
+          full_name: caretakerName.trim() || res.user.full_name
+        }));
       }
 
       // Redirect to ?next= page or default to Home Landing page
@@ -58,13 +61,13 @@ export default function LoginPage() {
         navigate(nextPage);
       }, 1000);
 
-
     } catch (err: any) {
-      setErrorMessage(err.message || 'Invalid Username (Email ID) or password. Please verify your credentials.');
+      setErrorMessage(err.message || 'Invalid Email ID or password. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-6 relative z-10 selection:bg-indigo-500 selection:text-white">
@@ -107,25 +110,44 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                Username (User Email ID)
+                Name
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                   <User size={18} />
                 </div>
                 <input
+                  type="text"
+                  value={caretakerName}
+                  onChange={(e) => setCaretakerName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Email ID
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                  <Mail size={18} />
+                </div>
+                <input
                   type="email"
-                  value={usernameEmail}
-                  onChange={(e) => setUsernameEmail(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-base transition-all"
                   required
                 />
               </div>
             </div>
+
 
             <div>
               <div className="flex justify-between items-center mb-2">

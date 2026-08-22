@@ -180,21 +180,22 @@ export default function ForgotPasswordFlow() {
             </div>
           )}
 
-          {/* STEP 1: ENTER USERNAME / EMAIL */}
+          {/* STEP 1: ENTER EMAIL ID */}
           {step === 1 && (
             <form onSubmit={handleSendOTP} className="space-y-5">
               <p className="text-sm text-slate-300">
-                Enter your registered Username (Email ID). We will generate a 6-digit verification code.
+                Enter your registered Email ID. We will generate a 6-digit verification code.
               </p>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Username (User Email ID)
+                  Email ID
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                    <User size={18} />
+                    <Mail size={18} />
                   </div>
+
                   <input
                     type="email"
                     value={email}
