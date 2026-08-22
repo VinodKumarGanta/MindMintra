@@ -200,7 +200,7 @@ export default function Methodology() {
                   <span className="text-xs text-cyan-400 font-mono">Qiskit AerSimulator</span>
                 </div>
                 <p className="text-xs text-slate-300 mb-4">
-                  Constructs a 2-qubit phase-kickback oracle and Grover diffuser ($H^{\otimes n} (2|0\rangle\langle0| - I) H^{\otimes n}$) to locate target accuracy difficulty level.
+                  Constructs a 2-qubit phase-kickback oracle and Grover diffuser H^(tensor n) (2|0&gt;&lt;0| - I) H^(tensor n) to locate target accuracy difficulty level.
                 </p>
 
                 <div className="mb-4">
@@ -254,18 +254,19 @@ export default function Methodology() {
                   <span className="text-xs text-purple-400 font-mono">dimod SA Sampler</span>
                 </div>
                 <p className="text-xs text-slate-300 mb-4">
-                  Formulates a 16-variable QUBO matrix balancing user engagement ($\alpha$) vs. frustration ($\beta$) across all 4 cognitive games simultaneously.
+                  Formulates a 16-variable QUBO matrix balancing user engagement (alpha) vs. frustration (beta) across all 4 cognitive games simultaneously.
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div>
-                    <label className="text-xs text-slate-400 block mb-1">Engagement ($\alpha$): 0.6</label>
+                    <label className="text-xs text-slate-400 block mb-1">Engagement (alpha): 0.6</label>
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400 block mb-1">Frustration ($\beta$): 0.4</label>
+                    <label className="text-xs text-slate-400 block mb-1">Frustration (beta): 0.4</label>
                   </div>
                 </div>
               </div>
+
 
               <button
                 onClick={async () => {
