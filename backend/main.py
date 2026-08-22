@@ -927,41 +927,68 @@ async def generate_cloud_tts(req: TTSRequest):
     text = req.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
-        
+
     lang = req.language.lower()
-    # Map requested language tag to TTS voice locale
-    tl = "te"
+    # Map requested language tag to Google TTS language code
     if "hi" in lang:
         tl = "hi"
-    elif "en" in lang:
-        tl = "en"
     elif "te" in lang:
         tl = "te"
+    elif "en" in lang:
+        tl = "en"
     else:
-        tl = "te"
+        tl = "te"  # Default to Telugu for this app context
 
-    encoded_text = urllib.parse.quote(text)
+    # Rotate User-Agent strings to avoid rate limiting
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    ]
+
+    encoded_text = urllib.parse.quote(text[:200])  # Google TTS max ~200 chars per request
     tts_url = f"https://translate.google.com/translate_tts?ie=UTF-8&tl={tl}&client=tw-ob&q={encoded_text}"
-    
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(tts_url, headers=headers, timeout=aiohttp.ClientTimeout(total=8)) as resp:
-                if resp.status == 200:
-                    audio_bytes = await resp.read()
-                    b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
-                    return {
-                        "success": True,
-                        "audio_base64": f"data:audio/mp3;base64,{b64_audio}",
-                        "language": req.language,
-                        "provider": "google_cloud_tts_fallback"
-                    }
-                else:
-                    raise HTTPException(status_code=resp.status, detail="TTS service returned error")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate TTS audio: {str(e)}")
+
+    last_error = None
+    for attempt in range(3):  # Retry up to 3 times with different User-Agents
+        try:
+            ua = user_agents[attempt % len(user_agents)]
+            headers = {
+                "User-Agent": ua,
+                "Accept": "audio/webm,audio/ogg,audio/wav,audio/*;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Referer": "https://translate.google.com/",
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    tts_url, headers=headers, timeout=aiohttp.ClientTimeout(total=10)
+                ) as resp:
+                    if resp.status == 200:
+                        audio_bytes = await resp.read()
+                        if len(audio_bytes) > 100:  # Valid audio must be > 100 bytes
+                            b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+                            return {
+                                "success": True,
+                                "audio_base64": f"data:audio/mp3;base64,{b64_audio}",
+                                "language": req.language,
+                                "tl": tl,
+                                "provider": "google_translate_tts",
+                            }
+                    last_error = f"HTTP {resp.status} on attempt {attempt + 1}"
+        except Exception as e:
+            last_error = str(e)
+            if attempt < 2:
+                import asyncio as _asyncio
+                await _asyncio.sleep(0.5)  # Short wait before retry
+            continue
+
+    raise HTTPException(
+        status_code=503,
+        detail=f"Telugu/Hindi TTS temporarily unavailable after 3 attempts. Last error: {last_error}"
+    )
+
+
 
 @app.get("/api/reminders/{user_id}")
 def list_reminders(user_id: int):

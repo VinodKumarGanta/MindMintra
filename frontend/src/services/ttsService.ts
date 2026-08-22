@@ -56,7 +56,8 @@ export interface TTSState {
   lastLocale: string;
 }
 
-const API_BASE = 'http://127.0.0.1:8000';
+
+
 
 class TTSService {
   private voices: SpeechSynthesisVoice[] = [];
@@ -253,8 +254,8 @@ class TTSService {
       }
     } catch {}
 
-    // Fetch from backend POST /api/tts
-    const response = await fetch(`${API_BASE}/api/tts`, {
+    // Fetch from backend POST /api/tts (relative URL — works with Vite proxy locally and Cloudflare Pages in production)
+    const response = await fetch(`/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, language: locale }),
@@ -414,8 +415,8 @@ class TTSService {
         return {
           success: false,
           locale: config.locale,
-          error: `${config.name} voice is temporarily unavailable. Localized text is displayed.`,
-          warning: 'voice_temporarily_unavailable',
+          error: `${config.name} voice unavailable — check that the backend server is running.`,
+          warning: 'cloud_tts_unavailable',
         };
       }
     }
